@@ -1,0 +1,178 @@
+{
+  "name": "SlackAssigment",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0C2F3ACW5V",
+          "mode": "list",
+          "cachedResultName": "n8n-automation"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "27a43134-0d52-4246-bfc7-f379c7655068",
+      "name": "Slack Trigger",
+      "webhookId": "f1aff352-2ad5-4f36-9d08-547cd5ff4fcf",
+      "credentials": {
+        "slackApi": {
+          "id": "EdwP6c7JZpDB4QDw",
+          "name": "Slack account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "List all the products and ingredients needed to make butter chicken.\nReturn a clear bulleted list with approximate quantities.\nKeep it short and practical. If the recipe name is unclear,\nask the user to rephrase it.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "b17843e2-1b4a-407a-a377-844a382bfe2b",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        208
+      ],
+      "id": "64a879d5-69ae-40a2-a164-7b833b2a7409",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "eKFqUEjXbqm4OhwU",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nreturn [\n  {\n    json: {\n      availableFields: Object.keys(input),\n      inputData: input\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        0
+      ],
+      "id": "36e97d16-0ab7-4342-86e0-39eb56d17845",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C2F3ACW5V",
+          "mode": "list",
+          "cachedResultName": "n8n-automation"
+        },
+        "text": "={{ $json.inputData.text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        384,
+        0
+      ],
+      "id": "e3a13380-eab1-49e7-89d6-485db433635c",
+      "name": "Send a message",
+      "webhookId": "51e23c56-80c1-4ee6-ab63-43a4616f198b",
+      "credentials": {
+        "slackApi": {
+          "id": "EdwP6c7JZpDB4QDw",
+          "name": "Slack account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "928869b4-b92a-4640-a230-13b7a0956073",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b4da3242fb7d96888a95c697b124417387a1f80dd1b732540a52fed8a9f4b6ae"
+  },
+  "nodeGroups": [],
+  "id": "iAFemZnkgF93KpCq",
+  "tags": []
+}
